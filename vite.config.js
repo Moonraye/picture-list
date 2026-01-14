@@ -12,5 +12,10 @@ export default defineConfig({
     }),
     tailwindcss()
   ],
+  server: {
+    watch: {
+      usePolling: true, // Включає примусове опитування файлів на предмет змін
+    }
+  },
   base: '/picture-list/'
 })
