@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getFavorites } from "../logic/getFavorites";
+import { deleteFromFavorite } from "../logic/deleteFromFavorite";
 import { div } from "framer-motion/client";
 
 export default function SavedPictures() {
@@ -23,7 +24,7 @@ export default function SavedPictures() {
           favorites.map((img) => (
             <div
               key={img.id}
-              className="w-64 rounded-lg overflow-hidden bg-slate-800 text-white"
+              className="w-64 rounded-lg overflow-hidden bg-slate-800 text-white relative"
             >
               <img
                 src={img.url}
@@ -34,6 +35,15 @@ export default function SavedPictures() {
                 <p className="font-bold text-lg">{img.author}</p>
                 <p className="text-sm text-slate-400">{img.title}</p>
               </div>
+              <button
+                onClick={async () => {
+                  await deleteFromFavorite(img.id);
+                  setFavorites(favorites.filter(fav => fav.id !== img.id));
+                }}
+                className="absolute top-3 right-3 px-3 py-1 bg-red-400 text-slate-950 rounded-full hover:bg-red-300 transition font-bold text-sm"
+              >
+                Delete
+              </button>
             </div>
           ))
         ) : (

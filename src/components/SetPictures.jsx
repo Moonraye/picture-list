@@ -1,13 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import getPictureAPI from "../logic/getPicture";
 import { saveToFavorite } from "../logic/saveToFavorite";
+import { deleteFromFavorite } from "../logic/deleteFromFavorite";
+import { getFavorites } from "../logic/getFavorites";
+
 export default function SetPicturesToWeb({ pictures, setPictures }) {
+  const [savedIds, setSavedIds] = useState([]);
+
   useEffect(() => {
     const loadPictures = async () => {
       const data = await getPictureAPI();
       if (data) {
         setPictures(data);
       }
+      const favorites = await getFavorites();
+      setSavedIds(favorites.map(fav => fav.id));
     };
     loadPictures();
   }, []);
@@ -31,10 +38,22 @@ export default function SetPicturesToWeb({ pictures, setPictures }) {
               </p>
             </div>
             <button
-              onClick={() => saveToFavorite(img)}
-              className="absolute top-3 right-3 px-3 py-1 bg-emerald-400 text-slate-950 rounded-full hover:bg-emerald-300 transition font-bold text-sm"
+              onClick={async () => {
+                if (savedIds.includes(img.id)) {
+                  await deleteFromFavorite(img.id);
+                  setSavedIds(savedIds.filter(id => id !== img.id));
+                } else {
+                  await saveToFavorite(img);
+                  setSavedIds([...savedIds, img.id]);
+                }
+              }}
+              className={`absolute top-3 right-3 px-3 py-1 rounded-full hover:transition font-bold text-sm ${
+                savedIds.includes(img.id)
+                  ? "bg-red-400 text-slate-950 hover:bg-red-300"
+                  : "bg-emerald-400 text-slate-950 hover:bg-emerald-300"
+              }`}
             >
-              Save
+              {savedIds.includes(img.id) ? "Delete" : "Save"}
             </button>
           </div>
         ))}
